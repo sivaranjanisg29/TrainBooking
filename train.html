@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Booking System</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        marquee {
+            margin: 10px 0;
+            color: #444;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #ff7e5f;
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #feb47b;
+        }
+
+        .confirmation {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .confirmation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .confirmation-table th, .confirmation-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .confirmation-table th {
+            background-color: #f2f2f2;
+        }
+
+        .confirmed {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="bookingContainer">
+        <h1>Train Booking System</h1>
+        <marquee behavior="scroll" direction="left">Welcome to the Train Booking System! Book your tickets now and enjoy a comfortable journey!</marquee>
+        <form id="bookingForm">
+            <div id="passengerSection">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="berth">Berth Preference:</label>
+                    <select id="berth" name="berth" required>
+                        <option value="upper">Upper</option>
+                        <option value="middle">Middle</option>
+                        <option value="lower">Lower</option>
+                        <option value="side_upper">Side Upper</option>
+                        <option value="side_lower">Side Lower</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" onclick="addPassenger()">Add Passenger</button>
+            <button type="button" onclick="addInfant()">Add Infant</button>
+            <div class="form-group">
+                <label for="captcha">Enter Captcha: <span id="captchaText"></span></label>
+                <input type="text" id="captcha" name="captcha" required>
+            </div>
+            <button type="submit">Book Ticket</button>
+        </form>
+    </div>
+
+    <div class="container hidden" id="confirmationContainer">
+        <h1>Booking Confirmation</h1>
+        <table class="confirmation-table" id="confirmationTable">
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Generate a random captcha
+            const captchaText = document.getElementById("captchaText");
+            const captchaCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+            captchaText.textContent = captchaCode;
+
+            const bookingForm = document.getElementById("bookingForm");
+            bookingForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const name = document.getElementById("name").value;
+                const age = document.getElementById("age").value;
+                const email = document.getElementById("email").value;
+                const phone = document.getElementById("phone").value;
+                const berth = document.getElementById("berth").value;
+                const captcha = document.getElementById("captcha").value;
+
+                if (captcha !== captchaCode) {
+                    alert("Invalid captcha. Please try again.");
+                    return;
+                }
+
+                // Randomly select a coach and berth number
+                const coaches = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'B1', 'B2'];
+                const coach = coaches[Math.floor(Math.random() * coaches.length)];
+                const berthNumber = Math.floor(Math.random() * 72) + 1;
+
+                // Store booking information in session storage
+                const bookingDetails = {
+                    name: name,
+                    age: age,
+                    email: email,
+                    phone: phone,
+                    berth: berth,
+                    coach: coach,
+                    berthNumber: berthNumber
+                };
+                sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+
+                // Show the confirmation page
+                document.getElementById('bookingContainer').classList.add('hidden');
+                document.getElementById('confirmationContainer').classList.remove('hidden');
+
+                // Display booking details
+                const confirmationTableBody = document.getElementById('confirmationTable').querySelector('tbody');
+                confirmationTableBody.innerHTML = `
+                    <tr><td>Name</td><td>${name}</td></tr>
+                    <tr><td>Age</td><td>${age}</td></tr>
+                    <tr><td>Berth Preference</td><td>${berth}</td></tr>
+                    <tr><td>Coach</td><td>${coach}</td></tr>
+                    <tr><td>Berth Number</td><td>${berthNumber}</td></tr>
+                    <tr><td>Status</td><td class="confirmed">Confirmed</td></tr>
+                    <tr><td>Email</td><td>The ticket will be mailed to ${email}</td></tr>
+                `;
+            });
+        });
+
+        function addPassenger() {
+            const passengerSection = document.getElementById('passengerSection');
+            const passengerDiv = document.createElement('div');
+            passengerDiv.classList.add('form-group');
+            passengerDiv.innerHTML = `
+                <label for="name">Passenger Name:</label>
+                <input type="text" name="name" required>
+                <label for="age">Age:</label>
+                <input type="number" name="age" required>
+                <label for="berth">Berth Preference:</label>
+                <select name="berth" required>
+                    <option value="upper">Upper</option>
+                    <option value="middle">Middle</option>
+                    <option value="lower">Lower</option>
+                    <option value="side_upper">Side Upper</option>
+                    <option value="side_lower">Side Lower</option>
+                </select>
+            `;
+            passengerSection.appendChild(passengerDiv);
+        }
+
+        function addInfant() {
+            const passengerSection = document.getElementById('passengerSection');
+            const infantDiv = document.createElement('div');
+            infantDiv.classList.add('form-group');
+            infantDiv.innerHTML = `
+                <label for="name">Infant Name:</label>
+                <input type="text" name="infantName" required>
+                <label for="age">Age:</label>
+                <input type="number" name="infantAge" required>
+            `;
+            passengerSection.appendChild(infantDiv);
+        }
+    </script>
+</body>
+</html>
